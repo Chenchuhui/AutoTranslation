@@ -1,1 +1,4 @@
-json_files
+formdata
+resource
+__pycache__
+credential.json
