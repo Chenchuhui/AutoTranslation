@@ -37,7 +37,7 @@ def main():
     # Step 4: Post Translated Data
     print("Posting translated data...")
     poster = PostProcessor(phpsessid=phpsessid, stripe_mid=stripe_mid)
-    post_success = poster.post_json(language_code)
+    post_success = poster.process_json_file(language_code)
     if not post_success:
         print("Failed to post translated data.")
         return
