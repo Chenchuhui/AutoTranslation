@@ -2,38 +2,56 @@ import os
 import requests
 import json
 
-# Define the path for the folder you want to create
-folder_path = "./resource/"
+class ResourceFetcher:
+    def __init__(self, phpsessid, stripe_mid, folder_path="./resource/"):
+        """
+        Initializes the ResourceFetcher with the necessary cookies and folder path.
+        
+        Args:
+            phpsessid (str): PHPSESSID for authentication.
+            stripe_mid (str): __stripe_mid for authentication.
+            folder_path (str): Path to save the fetched resources.
+        """
+        self.cookies = {
+            "PHPSESSID": phpsessid,
+            "__stripe_mid": stripe_mid,
+        }
+        self.folder_path = folder_path
+        self._ensure_folder_exists()
 
-# Check if the folder already exists
-if not os.path.exists(folder_path):
-    # If it doesn't exist, create it
-    os.makedirs(folder_path)
-    print(f"Folder '{folder_path}' created successfully.")
-else:
-    print(f"Folder '{folder_path}' already exists.")
+    def _ensure_folder_exists(self):
+        """Ensures that the resource folder exists."""
+        if not os.path.exists(self.folder_path):
+            os.makedirs(self.folder_path)
+            print(f"Folder '{self.folder_path}' created successfully.")
+        else:
+            print(f"Folder '{self.folder_path}' already exists.")
 
+    def fetch_resource(self, language_code):
+        """
+        Fetches resources from the server and saves the response as a JSON file.
+        
+        Args:
+            language_code (str): Language code to include in the request.
 
-# Define the URL and cookies
-url = "https://app.suitedash.com/translation/getResource"
-cookies = {
-    "PHPSESSID": "csh175a2q1163nrk6c0snjj0uo",
-    "__stripe_mid": "51fee4a9-d150-4f21-9fa8-3ee2c97319212639e6",
-}
+        Returns:
+            bool: True if the resource was successfully fetched and saved, False otherwise.
+        """
+        url = "https://app.suitedash.com/translation/getResource"  # Static URL matching the original code
+        print(f"Fetching resource for language code: {language_code}")
 
-# Make the GET request with the cookies
-response = requests.get(url, cookies=cookies)
-
-# Check if the response is successful
-if response.status_code == 200:
-    # Convert the response to JSON
-    data = response.json()
-    
-    # Save the JSON response to a file
-    with open(f'{folder_path}/arabic_response.json', 'w') as json_file:
-        json.dump(data, json_file, indent=4)
-    
-    print("Response saved to response.json")
-else:
-    print(f"Failed to retrieve data: {response.status_code}")
-
+        try:
+            response = requests.get(url, cookies=self.cookies)
+            if response.status_code == 200:
+                data = response.json()
+                file_path = os.path.join(self.folder_path, f"{language_code}_response.json")
+                with open(file_path, 'w', encoding='utf-8') as json_file:
+                    json.dump(data, json_file, indent=4)
+                print(f"Resource for '{language_code}' saved to {file_path}.")
+                return True
+            else:
+                print(f"Failed to retrieve data: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            return False

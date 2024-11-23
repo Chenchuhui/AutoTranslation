@@ -1,39 +1,66 @@
 import os
-import requests
 import json
+import requests
 
-# Define the directory containing the JSON files
-directory = "./formdata"  # Change this to your actual directory
 
-# Define the URL and cookies
-url = "https://app.suitedash.com/translation/saveGroup"
-cookies = {
-    "PHPSESSID": "csh175a2q1163nrk6c0snjj0uo",
-    "__stripe_mid": "51fee4a9-d150-4f21-9fa8-3ee2c97319212639e6",
-}
+class PostProcessor:
+    def __init__(self, directory="./formdata", url="https://app.suitedash.com/translation/saveGroup", phpsessid=None, stripe_mid=None):
+        """
+        Initializes the PostProcessor with directory, URL, and authentication cookies.
+        
+        Args:
+            directory (str): Directory containing the JSON files.
+            url (str): URL to send POST requests to.
+            phpsessid (str): PHPSESSID for authentication.
+            stripe_mid (str): Stripe MID for authentication.
+        """
+        self.directory = directory
+        self.url = url
+        self.cookies = {
+            "PHPSESSID": phpsessid,
+            "__stripe_mid": stripe_mid,
+        }
 
-# Function to process each JSON file
-def process_json_file(filepath, filename):
-    with open(filepath, 'r', encoding='utf-8') as file:
-        data = json.load(file)
+    def process_json_file(self, language_code):
+        """
+        Processes the JSON file corresponding to the given language code by sending its content to the API.
+        
+        Args:
+            language_code (str): The language code to identify the file to process.
 
-    # Prepare form-data as required by the API
-    form_data = {'group': json.dumps(data['group'])}
+        Returns:
+            dict: A dictionary containing the status code and response text.
+        """
+        filename = f"{language_code}_data_t.json"
+        filepath = os.path.join(self.directory, filename)
 
-    # # Print the form_data for debugging
-    # print(f"Processing file: {filename}")
-    # print("Form Data:", form_data)
+        # Check if the file exists
+        if not os.path.exists(filepath):
+            return {
+                "status_code": 404,
+                "message": f"Error: File '{filepath}' not found.",
+            }
 
-    # Make the POST request with the form-data and cookies
-    response = requests.post(f'{url}', data=form_data, cookies=cookies)
+        try:
+            # Load the JSON data
+            with open(filepath, 'r', encoding='utf-8') as file:
+                data = json.load(file)
 
-    # Print the response status and text
-    print(f"Response for {filename}: {response.status_code}")
-    print(response.text)
+            # Prepare form-data
+            form_data = {'group': json.dumps(data['group'])}
 
-# Iterate over all JSON files in the specified directory
-filename = "arabic_data_t.json"
-filepath = os.path.join(directory, filename)
-process_json_file(filepath, filename[:-5])  # Remove the .json extension for the filename
+            # Send the POST request
+            response = requests.post(self.url, data=form_data, cookies=self.cookies)
 
-print("All files processed.")
+            # Return the response details
+            return {
+                "status_code": response.status_code,
+                "message": response.text,
+            }
+
+        except Exception as e:
+            return {
+                "status_code": 500,
+                "message": f"An error occurred: {str(e)}",
+            }
+
