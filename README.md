@@ -1,56 +1,89 @@
-# Translation Processing Automation
+# Auto Translation
 
-This repository automates the process of translating JSON files using APIs and uploading the translated data back to the server. App url: https://app.suitedash.com. The project includes scripts for fetching resources, extracting and translating data, and posting the translated files.
+This repository automates the translation workflow for JSON files, including resource fetching, data extraction, translation, and posting the results back to a server.
 
 ---
 
 ## Features
 
 1. **Fetch Resources**:
-   - Downloads translation resources from a specified API endpoint using authentication credentials.
+   - Downloads translation resources from a specified server endpoint using authentication credentials.
 
-2. **Extract and Save Data**:
-   - Extracts untranslated content (`uid`, `text`) from JSON files for processing.
+2. **Extract Data**:
+   - Extracts key fields (`uid`, `text`) from the fetched JSON for processing.
 
-3. **Translation**:
-   - Supports automated translation via Google Translate API or manually provided translations.
+3. **Translate**:
+   - Supports automatic translation using the Google Translate API or manual input for translations.
 
 4. **Post Translated Data**:
-   - Sends the translated data back to the server via HTTP POST.
+   - Sends translated JSON files back to the server.
 
 ---
 
-## File Descriptions
+## How to Use
 
-### Scripts
+### Run the Full Workflow
 
-- `get_resource.py`:
-  - Fetches translation resources from the API.
-  - Saves the raw response as a JSON file.
+To execute the entire workflow in a single step, run the `main.py` script:
 
-- `formData.py`:
-  - Extracts `uid` and `text` from the fetched resources.
-  - Saves extracted data in a simplified JSON format.
+```bash
+python3 main.py
+```
 
-- `translate.py`:
-  - Processes translations for extracted JSON files.
-  - Supports automated translation using Google Translate API or custom translations.
+You will be prompted to provide the following inputs:
 
-- `post.py`:
-  - Sends translated JSON data back to the server.
+- **`PHPSESSID`**: Your session ID for API authentication.
+- **`__stripe_mid`**: Your Stripe MID for API authentication.
+- **Language Code**: The target language code for translation (e.g., `bn` for Bengali, `en` for English).
 
-- `main.py`:
-  - The entry point script that integrates all steps:
-    1. Fetch resource.
-    2. Extract and generate form data.
-    3. Translate data.
-    4. Post translated data.
+### Example Input:
+
+```plaintext
+Enter PHPSESSID: 13i3sleubcnuj5ekqvduv0n6ri
+Enter __stripe_mid: 1f34f841-0bed-4ce7-9e2c-c9fb66431afb516c56
+Enter language code (e.g., 'bn', 'en'): bn
+```
 
 ---
 
-## Installation
+## Server Details
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/your-repository.git
-   cd your-repository
+The script interacts with the following server endpoints:
+
+1. **Fetch Resources**:
+   - URL: `https://app.suitedash.com/translation/getResource`
+
+2. **Post Translated Data**:
+   - URL: `https://app.suitedash.com/translation/saveGroup`
+
+Authentication is handled via cookies:
+- **`PHPSESSID`**
+- **`__stripe_mid`**
+
+---
+
+## Directory Structure
+
+- **`/formdata`**: Stores extracted and translated JSON files.
+- **`/resource`**: Stores fetched raw resource files.
+
+---
+
+## Requirements
+
+1. **Python**: 3.7 or higher.
+2. **Dependencies**:
+   - `requests`: For making API calls.
+   - `googletrans` (optional): For using Google Translate.
+
+Install dependencies with:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+```
