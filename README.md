@@ -1,6 +1,6 @@
 # Translation Processing Automation
 
-This repository automates the process of translating JSON files using APIs and uploading the translated data back to the server. The project includes scripts for fetching resources, extracting and translating data, and posting the translated files.
+This repository automates the process of translating JSON files using APIs and uploading the translated data back to the server. App url: https://app.suitedash.com. The project includes scripts for fetching resources, extracting and translating data, and posting the translated files.
 
 ---
 
